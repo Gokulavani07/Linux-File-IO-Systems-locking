@@ -20,21 +20,141 @@ Execute the C Program for the desired output.
 # PROGRAM:
 
 ## 1.To Write a C program that illustrates files copying 
+```
 
 
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <stdio.h>
 
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <source_file> <destination_file>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    char block[1024];
+    int in, out;
+    ssize_t nread;
+
+    // Open source file
+    in = open(argv[1], O_RDONLY);
+    if (in == -1) {
+        perror("Error opening source file");
+        exit(EXIT_FAILURE);
+    }
+
+    // Open destination file
+    out = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    if (out == -1) {
+        perror("Error opening destination file");
+        close(in);
+        exit(EXIT_FAILURE);
+    }
+
+    // Copy contents
+    while ((nread = read(in, block, sizeof(block))) > 0) {
+        if (write(out, block, nread) != nread) {
+            perror("Error writing to destination file");
+            close(in);
+            close(out);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (nread == -1) {
+        perror("Error reading source file");
+    }
+
+    close(in);
+    close(out);
+    return EXIT_SUCCESS;
+}
+
+```
+## OUTPUT
+<img width="617" height="428" alt="Screenshot 2026-05-14 084353" src="https://github.com/user-attachments/assets/83059014-224c-4773-b4d8-575fb2bd2d46" />
 
 
 
 
 ## 2.To Write a C program that illustrates files locking
 
+```
+//C program that illustrates files locking goes here
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/file.h>
 
+void display_lslocks() {
+    printf("\nCurrent `lslocks` output:\n");
+    fflush(stdout);
+    system("lslocks");
+}
 
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    char *file = argv[1];
+    int fd;
+
+    printf("Opening %s\n", file);
+
+    fd = open(file, O_WRONLY);
+    if (fd == -1) {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+
+    // Acquire shared lock
+    if (flock(fd, LOCK_SH) == -1) {
+        perror("Error acquiring shared lock");
+        close(fd);
+        exit(EXIT_FAILURE);
+    }
+    printf("Acquired shared lock using flock\n");
+    display_lslocks();
+
+    sleep(1); // Simulate waiting before upgrading
+
+    // Try to upgrade to exclusive lock (non-blocking)
+    if (flock(fd, LOCK_EX | LOCK_NB) == -1) {
+        perror("Error upgrading to exclusive lock");
+        flock(fd, LOCK_UN); // Release shared lock if upgrade fails
+        close(fd);
+        exit(EXIT_FAILURE);
+    }
+    printf("Acquired exclusive lock using flock\n");
+    display_lslocks();
+
+    sleep(1); // Simulate waiting before unlocking
+
+    // Release lock
+    if (flock(fd, LOCK_UN) == -1) {
+        perror("Error unlocking");
+        close(fd);
+        exit(EXIT_FAILURE);
+    }
+    printf("Unlocked\n");
+    display_lslocks();
+
+    close(fd);
+    return 0;
+}
+```
 
 ## OUTPUT
 
 
+<img width="893" height="623" alt="Screenshot 2026-05-14 085146" src="https://github.com/user-attachments/assets/163beeee-8442-461f-9b98-94776ae76ad2" />
+<img width="830" height="582" alt="image" src="https://github.com/user-attachments/assets/a7812a46-0fae-44e0-9b8e-8270df2aa0bd" />
 
 
 
