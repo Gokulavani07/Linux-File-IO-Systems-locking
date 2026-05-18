@@ -75,7 +75,8 @@ int main(int argc, char *argv[]) {
 
 ```
 ## OUTPUT
-<img width="617" height="428" alt="Screenshot 2026-05-14 084353" src="https://github.com/user-attachments/assets/83059014-224c-4773-b4d8-575fb2bd2d46" />
+<img width="510" height="350" alt="image" src="https://github.com/user-attachments/assets/da555e11-79a3-4819-a355-5911c50199d0" />
+
 
 
 
